@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Logic Circuit Designer & Analyzer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+   <header class="brand-header">
+    <img class="brand-logo brand-logo-left" src="assets/caluni-logo.png" alt="CalUni — California University of Science and Technology">
+    <div class="brand-heading">
+        <h1>Digital Logic Circuit Designer & Analyzer</h1>
+        <p>Digital Logic Design and Simulation</p>
+    </div>
+    <img class="brand-logo brand-logo-right" src="assets/essam-assaf.png" alt="ESSAM ASSAF 1978">
+</header>
+<nav class="toolbar">
+    <button id="newBtn">New</button>
+    <button id="openBtn">Open</button>
+    <button id="undoBtn" title="Undo (Ctrl+Z)">↶ Undo</button>
+    <button id="redoBtn" title="Redo (Ctrl+Y)">↷ Redo</button>
+    <button id="saveBtn">Save</button>
+    <button id="printBtn">Print</button>
+    <button id="exportBtn">Export PDF</button>
+    <button id="runBtn" class="run-button" type="button" disabled title="Simulation will be available after outputs are added">▶ Run</button>
+    <button id="helpBtn">Help</button>
+</nav>
+<main class="workspace">
+
+    <section class="circuit-section">
+
+        <h2>Circuit Design Area</h2>
+
+        <div class="circuit-container">
+
+            <aside class="components-panel">
+                <h3>Components</h3>
+                <div class="component-columns">
+                    <section class="component-column inputs-column" aria-label="Logic inputs">
+                        <h4>Inputs <small>(Editable)</small></h4>
+                        <div class="input-row" data-input-key="A">
+                            <button type="button" class="input-add" title="Add input A to canvas" aria-label="Add input A">
+                                <span class="input-symbol">A</span>
+                            </button>
+                            <button type="button" class="input-switch on" aria-pressed="true" title="Toggle input A"><span class="input-value">1</span><span class="switch-knob"></span></button>
+                            <button type="button" class="input-rename" title="Rename input A" aria-label="Rename input A">✎</button>
+                        </div>
+                        <div class="input-row" data-input-key="B">
+                            <button type="button" class="input-add" title="Add input B to canvas" aria-label="Add input B">
+                                <span class="input-symbol">B</span>
+                            </button>
+                            <button type="button" class="input-switch" aria-pressed="false" title="Toggle input B"><span class="input-value">0</span><span class="switch-knob"></span></button>
+                            <button type="button" class="input-rename" title="Rename input B" aria-label="Rename input B">✎</button>
+                        </div>
+                        <div class="input-row" data-input-key="C">
+                            <button type="button" class="input-add" title="Add input C to canvas" aria-label="Add input C">
+                                <span class="input-symbol">C</span>
+                            </button>
+                            <button type="button" class="input-switch" aria-pressed="false" title="Toggle input C"><span class="input-value">0</span><span class="switch-knob"></span></button>
+                            <button type="button" class="input-rename" title="Rename input C" aria-label="Rename input C">✎</button>
+                        </div>
+                        <div class="input-row" data-input-key="D">
+                            <button type="button" class="input-add" title="Add input D to canvas" aria-label="Add input D">
+                                <span class="input-symbol">D</span>
+                            </button>
+                            <button type="button" class="input-switch" aria-pressed="false" title="Toggle input D"><span class="input-value">0</span><span class="switch-knob"></span></button>
+                            <button type="button" class="input-rename" title="Rename input D" aria-label="Rename input D">✎</button>
+                        </div>
+                        <div class="input-row" data-input-key="E">
+                            <button type="button" class="input-add" title="Add input E to canvas" aria-label="Add input E">
+                                <span class="input-symbol">E</span>
+                            </button>
+                            <button type="button" class="input-switch" aria-pressed="false" title="Toggle input E"><span class="input-value">0</span><span class="switch-knob"></span></button>
+                            <button type="button" class="input-rename" title="Rename input E" aria-label="Rename input E">✎</button>
+                        </div>
+                        <div class="input-row" data-input-key="F">
+                            <button type="button" class="input-add" title="Add input F to canvas" aria-label="Add input F">
+                                <span class="input-symbol">F</span>
+                            </button>
+                            <button type="button" class="input-switch" aria-pressed="false" title="Toggle input F"><span class="input-value">0</span><span class="switch-knob"></span></button>
+                            <button type="button" class="input-rename" title="Rename input F" aria-label="Rename input F">✎</button>
+                        </div>
+                        <div class="input-row" data-input-key="G">
+                            <button type="button" class="input-add" title="Add input G to canvas" aria-label="Add input G">
+                                <span class="input-symbol">G</span>
+                            </button>
+                            <button type="button" class="input-switch" aria-pressed="false" title="Toggle input G"><span class="input-value">0</span><span class="switch-knob"></span></button>
+                            <button type="button" class="input-rename" title="Rename input G" aria-label="Rename input G">✎</button>
+                        </div>
+                    </section>
+                    <section class="component-column gates-column" aria-label="Logic gates">
+                        <h4>Logic Gates</h4>
+                        <button type="button" class="gate-option" data-gate="AND" title="Add AND gate"><svg viewBox="0 0 36 30" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5 H20 A10 10 0 0 1 20 25 H6 Z"/><path d="M1 10 H6 M1 20 H6 M30 15 H34"/></g></svg><span>AND</span></button>
+                        <button type="button" class="gate-option" data-gate="OR" title="Add OR gate"><svg viewBox="0 0 36 30" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5 Q15 15 6 25 Q26 25 31 15 Q26 5 6 5Z"/><path d="M1 10 H9 M1 20 H9 M31 15 H34"/></g></svg><span>OR</span></button>
+                        <button type="button" class="gate-option" data-gate="NOT" title="Add NOT gate"><svg viewBox="0 0 36 30" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5 L25 15 L6 25 Z"/><circle cx="28" cy="15" r="3"/><path d="M1 15 H6 M31 15 H34"/></g></svg><span>NOT</span></button>
+                        <button type="button" class="gate-option" data-gate="NAND" title="Add NAND gate"><svg viewBox="0 0 36 30" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5 H19 A10 10 0 0 1 19 25 H6 Z"/><circle cx="31" cy="15" r="3"/><path d="M1 10 H6 M1 20 H6"/></g></svg><span>NAND</span></button>
+                        <button type="button" class="gate-option" data-gate="NOR" title="Add NOR gate"><svg viewBox="0 0 36 30" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5 Q15 15 6 25 Q24 25 27 15 Q24 5 6 5Z"/><circle cx="30" cy="15" r="3"/><path d="M1 10 H9 M1 20 H9"/></g></svg><span>NOR</span></button>
+                        <button type="button" class="gate-option" data-gate="XOR" title="Add XOR gate"><svg viewBox="0 0 36 30" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5 Q12 15 3 25 M7 5 Q16 15 7 25 Q27 25 31 15 Q27 5 7 5Z"/><path d="M1 10 H7 M1 20 H7 M31 15 H34"/></g></svg><span>XOR</span></button>
+                        <button type="button" class="gate-option" data-gate="XNOR" title="Add XNOR gate"><svg viewBox="0 0 36 30" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5 Q12 15 3 25 M7 5 Q16 15 7 25 Q24 25 27 15 Q24 5 7 5Z"/><circle cx="30" cy="15" r="3"/><path d="M1 10 H7 M1 20 H7"/></g></svg><span>XNOR</span></button>
+                    </section>
+                </div>
+                <section class="outputs-panel" aria-label="Logic outputs">
+                    <h4>Outputs <small>(LED)</small></h4>
+                    <div class="output-control-row">
+                        <button type="button" id="addOutputBtn" class="output-add" title="Add output to canvas" aria-label="Add output Y to canvas">
+                            <span class="output-chip">Y</span>
+                            <span class="output-add-label">Add Output</span>
+                        </button>
+                        <button type="button" id="renameOutputBtn" class="output-rename" title="Rename next output" aria-label="Rename next output">✎</button>
+                        <span class="output-legend" aria-label="LED colors: red means zero, green means one">
+                            <span class="legend-led zero"></span><span>0</span>
+                            <span class="legend-led one"></span><span>1</span>
+                        </span>
+                    </div>
+                </section>
+            </aside>
+
+            <div class="drawing-area" id="drawingArea">
+                <p>Drag and drop components here</p>
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+    <script src="js/gates.js"></script>
+    <script src="js/inputs.js"></script>
+<script src="js/gate-drag.js"></script>
+<script src="js/wires.js"></script>
+<script src="js/wire-edit.js"></script>
+<script src="js/selection.js"></script>
+<script src="js/rotation.js"></script>
+<script src="js/history.js"></script>
+<script src="js/clipboard.js"></script>
+<script src="js/junctions.js"></script>
+<script src="js/wire-colors.js"></script>
+<script src="js/outputs.js"></script>
+<script src="js/simulation.js"></script>
+<script src="js/boolean-equations.js"></script>
+<script src="js/truth-table.js"></script>
+<script src="js/timing-diagram.js"></script>
+<script src="js/results-alignment.js"></script>
+<script src="js/credits.js"></script>
+<script src="js/open-wires.js"></script>
+<script src="js/wire-jumps.js"></script>
+<script src="js/group-actions.js"></script>
+</body>
+</html>

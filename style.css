@@ -1,0 +1,495 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #050b1a;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+header {
+    text-align: center;
+    padding: 25px;
+    background-color: #07152e;
+    border-bottom: 2px solid #00bfff;
+}
+
+header h1 {
+    color: #58c7ff;
+    margin: 0;
+}
+
+header p {
+    color: #ffffff;
+    margin-top: 10px;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 15px;
+    background-color: #08152b;
+    border-bottom: 1px solid #00bfff;
+}
+
+.toolbar button {
+    background-color: #071b35;
+    color: #ffffff;
+    border: 1px solid #00bfff;
+    border-radius: 8px;
+    padding: 12px 22px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.toolbar button:hover {
+    background-color: #00bfff;
+    color: #001020;
+    box-shadow: 0 0 15px #00bfff;
+}
+
+/* Main Workspace */
+.workspace {
+    padding: 20px;
+}
+
+/* Circuit Section */
+.circuit-section {
+    background-color: #07152e;
+    border: 1px solid #00bfff;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 0 12px rgba(0, 191, 255, 0.3);
+}
+
+.circuit-section h2 {
+    color: #58c7ff;
+    margin-top: 0;
+}
+
+/* Circuit Layout */
+.circuit-container {
+    display: flex;
+    gap: 15px;
+    min-height: 500px;
+}
+
+/* Components Panel */
+.components-panel {
+    width: 200px;
+    flex-shrink: 0;
+    background-color: #08152b;
+    border: 1px solid #00bfff;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.components-panel h3 {
+    color: #58c7ff;
+    text-align: center;
+}
+
+.components-panel h4 {
+    color: white;
+    border-bottom: 1px solid #00bfff;
+    padding-bottom: 10px;
+}
+
+/* Logic Gate Buttons */
+.components-panel button {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 12px;
+    background-color: #101b3a;
+    color: white;
+    border: 1px solid #8a2be2;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.components-panel button:hover {
+    background-color: #8a2be2;
+    box-shadow: 0 0 15px #a855f7;
+}
+
+/* Circuit Drawing Area */
+.drawing-area {
+    flex: 1;
+    min-width: 0;
+    min-height: 500px;
+    position: relative;
+
+    background-color: #030b1c;
+
+    background-image:
+        linear-gradient(rgba(0, 191, 255, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 191, 255, 0.08) 1px, transparent 1px);
+
+    background-size: 20px 20px;
+
+    border: 2px solid #00bfff;
+    border-radius: 10px;
+
+    box-shadow:
+        inset 0 0 15px rgba(0, 191, 255, 0.15),
+        0 0 10px rgba(0, 191, 255, 0.3);
+}
+
+.drawing-area p {
+    text-align: center;
+    color: #64748b;
+    margin-top: 30px;
+}
+
+/* Logic Gate Design */
+.logic-gate {
+    position: absolute;
+
+    width: 80px;
+    height: 60px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+
+    cursor: move;
+    user-select: none;
+}
+
+.logic-gate svg {
+    width: 100%;
+    height: 100%;
+
+    overflow: visible;
+
+    filter:
+        drop-shadow(0 0 4px #b026ff)
+        drop-shadow(0 0 8px rgba(176, 38, 255, 0.5));
+}
+
+/* Gate Right-Click Menu */
+.gate-context-menu {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    min-width: 170px;
+    padding: 8px;
+    background: #08152b;
+    border: 1px solid #00bfff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.4);
+}
+
+.gate-context-menu button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 3px 0;
+    background: transparent;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.gate-context-menu button:hover {
+    background: #123b65;
+    color: #00ffff;
+}
+/* =====================================
+   PROFESSIONAL CIRCUIT CURSORS
+===================================== */
+
+/* Normal cursor on logic gates */
+.logic-gate,
+.logic-gate svg {
+    cursor: default !important;
+}
+
+/* Precision cursor on connection pins */
+.input-pin,
+.output-pin {
+    cursor: crosshair !important;
+}
+
+/* Default cursor on empty canvas */
+.drawing-area {
+    cursor: default;
+}
+/* =====================================
+   SELECTED GATE - RED NEON GLOW
+===================================== */
+
+.logic-gate.gate-selected svg > g {
+    stroke: #ff3030;
+}
+
+.logic-gate.gate-selected svg {
+    filter:
+        drop-shadow(0 0 5px #ff3030)
+        drop-shadow(0 0 12px rgba(255, 48, 48, 0.8));
+}
+/* =====================================
+   UNDO / REDO BUTTON STATES
+===================================== */
+
+.toolbar button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.toolbar button:disabled:hover {
+    background-color: #071b35;
+    color: #ffffff;
+}
+/* Prevent text selection inside the circuit canvas */
+
+#drawingArea {
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+
+/* Two-column, equal-height Components layout */
+.components-panel {
+    width: 416px;
+    box-sizing: border-box;
+    padding: 12px;
+}
+.components-panel h3 {
+    margin: 4px 0 15px;
+    font-size: 20px;
+}
+.component-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 9px;
+}
+.component-column {
+    min-width: 0;
+    padding: 9px;
+    border: 1px solid #00bfff;
+    border-radius: 9px;
+    background: #07152e;
+}
+.components-panel .component-column h4 {
+    text-align: center;
+    font-size: 14px;
+    white-space: nowrap;
+    margin: 2px 0 11px;
+    padding: 0 0 10px;
+    border-bottom: 2px solid #00d7ff;
+}
+.component-column h4 small {
+    color: #58c7ff;
+    font-size: 11px;
+    font-weight: normal;
+}
+.component-column .gate-option,
+.component-column .input-row {
+    box-sizing: border-box;
+    width: 100%;
+    height: 44px;
+    margin: 0 0 9px;
+    border-radius: 7px;
+}
+/* Only the actual gate buttons use the old purple style. */
+.component-column .gate-option {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 8px;
+    text-align: left;
+    background: #101b3a;
+    border: 1px solid #8a2be2;
+    color: white;
+    font-size: 12px;
+}
+.gate-option svg { width: 39px; height: 30px; flex-shrink: 0; }
+.gate-option span { flex: 1; text-align: center; }
+/* Input rows match gate buttons exactly in height and row spacing. */
+.component-column .input-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 5px;
+    padding: 5px;
+    border: 1px solid #00bfff;
+    background: #06152d;
+}
+.components-panel .input-row button {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    height: 30px;
+    border-radius: 6px;
+    transition: background-color .15s;
+}
+.components-panel .input-row button:hover {
+    background-color: #15435a;
+    box-shadow: none;
+}
+.components-panel .input-add { flex: 1; border: none; background: transparent; }
+.input-symbol {
+    display: block;
+    padding: 2px 4px;
+    border: 1.5px solid white;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.input-symbol::after { content: '•'; color: #00ffff; margin-left: 2px; }
+.components-panel .input-switch {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 0 0 49px;
+    gap: 2px;
+    padding: 1px 4px !important;
+    border: 1px solid #a6b5c9;
+    border-radius: 20px !important;
+    background-color: #1f2c3b;
+}
+.components-panel .input-switch.on { background: #065c18; border-color: #39ff14; }
+.input-value { font-size: 13px; color: white; }
+.switch-knob { width: 19px; height: 19px; flex-shrink: 0; background: white; border-radius: 50%; }
+.components-panel .input-rename {
+    flex: 0 0 25px;
+    color: #fff;
+    background: #071b35;
+    border: 1px solid #00bfff;
+    font-size: 19px;
+}
+/* Green toolbar Run control; intentionally disabled until simulation is wired. */
+.toolbar .run-button {
+    border-color: #39ff14;
+    background-color: #064919;
+    color: white;
+}
+.toolbar .run-button:disabled {
+    opacity: .75;
+    border-color: #39ff14;
+    background-color: #064919;
+    cursor: not-allowed;
+}
+@media (max-width: 750px) {
+    .circuit-container { flex-direction: column; }
+    .components-panel { width: 100%; }
+    .component-columns { grid-template-columns: 1fr 1fr; }
+    .drawing-area { flex: auto; }
+}
+
+/* Move the white knob to the LEFT whenever an input is ON (1). */
+.components-panel .input-switch.on {
+    flex-direction: row-reverse;
+}
+
+/* Title stays exactly above the Components panel, not above the canvas. */
+.circuit-section > h2 {
+    width: 416px;
+    max-width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+/* Output component area below the two component columns. */
+.outputs-panel {
+    margin-top: 12px;
+    padding: 9px;
+    border: 1px solid #00bfff;
+    border-radius: 9px;
+    background: #07152e;
+}
+.components-panel .outputs-panel h4 {
+    margin: 0 0 10px;
+    padding-bottom: 9px;
+    border-bottom: 2px solid #00d7ff;
+    text-align: center;
+    font-size: 16px;
+    white-space: nowrap;
+}
+.outputs-panel h4 small { font-size: 12px; color: #58c7ff; }
+.output-control-row { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.components-panel .output-control-row button { margin: 0; padding: 5px 8px; height: 36px; }
+.components-panel .output-add {
+    display: flex; align-items: center; gap: 8px; flex: 1 1 auto;
+    min-width: 0; width: auto; background: #06152d;
+    border: 1px solid #00bfff; font-size: 12px;
+}
+.output-chip { border: 1px solid #00d7ff; border-radius: 5px; padding: 3px 8px; font-weight: bold; }
+.output-add-label { white-space: nowrap; }
+.components-panel .output-rename {
+    flex: 0 0 31px; width: 31px;
+    border: 1px solid #00bfff; background: #071b35; font-size: 19px;
+}
+.output-legend { display: flex; align-items: center; gap: 5px; font-size: 12px; white-space: nowrap; }
+.legend-led { display: inline-block; width: 13px; height: 13px; border-radius: 50%; }
+.legend-led.zero { background: #ff3030; box-shadow: 0 0 7px #ff3030; }
+.legend-led.one { background: #39ff14; box-shadow: 0 0 7px #39ff14; margin-left: 6px; }
+.output-node svg { filter: drop-shadow(0 0 5px #00bfff); }
+.output-node.gate-selected svg {
+    filter: drop-shadow(0 0 5px #ff3030) drop-shadow(0 0 9px rgba(255,48,48,.7));
+}
+@media (max-width: 580px) {
+    .output-control-row { flex-wrap: wrap; }
+}
+
+/* =====================================
+   HEADER BRANDING — CALUNI / ESSAM ASSAF
+   ===================================== */
+.brand-header {
+    display: grid;
+    grid-template-columns: minmax(100px, 180px) minmax(0, 1fr) minmax(100px, 180px);
+    align-items: center;
+    column-gap: 16px;
+    min-height: 112px;
+    padding: 16px 26px;
+}
+.brand-heading { min-width: 0; text-align: center; }
+.brand-heading h1 { font-size: clamp(18px, 2.5vw, 32px); }
+.brand-heading p { margin-bottom: 0; }
+.brand-logo {
+    display: block;
+    width: 100%;
+    max-height: 108px;
+    object-fit: contain;
+}
+.brand-logo-left { justify-self: start; }
+.brand-logo-right { justify-self: end; }
+@media (max-width: 650px) {
+    .brand-header {
+        grid-template-columns: 76px minmax(0, 1fr) 76px;
+        column-gap: 8px;
+        padding: 12px 8px;
+        min-height: 80px;
+    }
+    .brand-logo { max-height: 70px; }
+    .brand-heading h1 { font-size: clamp(14px, 3.5vw, 20px); }
+    .brand-heading p { font-size: 11px; }
+}
+/* Center Circuit Design Area title */
+
+.circuit-section > h2 {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    margin: 0 0 20px;
+}
