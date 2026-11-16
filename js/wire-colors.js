@@ -34,9 +34,14 @@
         return connection?.fromGate?.querySelector("svg") || null;
     }
 
-    function wireColor(connection) {
+    // All branches belong to the SAME electrical net and inherit the
+    // original driver's current color; never assign a fresh branch color.
+    function wireColor(connection, visited = new Set()) {
+        if (!connection || visited.has(connection)) return "#00ffff";
+        visited.add(connection);
+        if (connection.branchParent) return wireColor(connection.branchParent, visited);
         const svg = sourceSvg(connection);
-        if (!svg) return "#00ffff";
+        if (!svg) return '#00ffff';
         if (svg.dataset.wireColor) return svg.dataset.wireColor;
         const key = svg.dataset.inputKey;
         const color = key && INPUT_COLORS[key]
@@ -60,6 +65,11 @@
         const editing = typeof selectedWireSegment !== "undefined" &&
             selectedWireSegment?.connection === connection;
         const color = (selected || editing) ? "#ffff00" : wireColor(connection);
+        // Save the actual signal color separately from temporary yellow
+        // selection highlights and propagate it to child/open branches.
+        const signalColor = wireColor(connection);
+        if (connection.line.dataset.wireColor !== signalColor)
+            connection.line.dataset.wireColor = signalColor;
         setAttributeIfChanged(connection.line, "stroke", color);
         setFilterIfChanged(connection.line, `drop-shadow(0 0 5px ${color})`);
     }
@@ -98,6 +108,9 @@
             restoreLineColor(connection);
         }
         refreshJunctionColors();
+        // Free-wire branches are not in `connections`; keep their colors in
+        // sync with the source output even after color picker/Undo/Redo.
+        window.__dlaRefreshOpenWireColors?.();
     }
 
     // junctions.js already wraps updateWires(). Keep that behavior intact.
@@ -179,7 +192,10 @@
         row.addEventListener("click", event => event.stopPropagation());
         colorInput.addEventListener("input", () => {
             if (!rightClickedConnection || !connections.includes(rightClickedConnection)) return;
-            const svg = sourceSvg(rightClickedConnection);
+            // Color edits on branches change their shared source net.
+            let root = rightClickedConnection;
+            while (root.branchParent) root = root.branchParent;
+            const svg = sourceSvg(root);
             if (!svg) return;
             // Record the state before a color change for Undo/Redo.
             if (!colorInput._colorBefore) colorInput._colorBefore = captureCircuitState();

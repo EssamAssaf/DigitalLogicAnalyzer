@@ -229,6 +229,12 @@ const gateContextMenu = document.createElement("div");
 gateContextMenu.className = "gate-context-menu";
 
 gateContextMenu.innerHTML = `
+    <button id="convertComponent" style="display:none">Convert</button>
+    <button id="convertMasterSlave" style="display:none">Convert to Slave</button>
+    <button id="toggleMuxEnable" style="display:none">Add Enable</button>
+    <button id="toggleLatchEnable" style="display:none">Add Enable</button>
+    <button id="toggleFlipFlopEnable" style="display:none">Add Enable</button>
+    <button id="toggleFlipFlopEdge" style="display:none">Clock Edge: Falling</button>
     <button id="addInput">+ Add Input</button>
     <button id="removeInput">- Remove Input</button>
     <button id="rotateGate">Rotate Gate</button>
@@ -252,9 +258,22 @@ drawingArea.addEventListener("contextmenu", (event) => {
     event.preventDefault();
 
     selectedGate = gate;
-    const isSourceInput = gate.dataset.type === "INPUT" || gate.dataset.type === "OUTPUT";
+    const isSourceInput = gate.dataset.type === "INPUT" || gate.dataset.type === "OUTPUT" || gate.dataset.type === "HALF_ADDER" || gate.dataset.type === "FULL_ADDER" || gate.dataset.type === "PARALLEL_ADDER" || gate.dataset.type === "COMPARATOR" || gate.dataset.type === "ENCODER" || gate.dataset.type === "DECODER" || gate.dataset.type === "MUX" || gate.dataset.type === "DEMUX" || gate.dataset.type === "LATCH" || gate.dataset.type === "FLIP_FLOP" || gate.dataset.type === "CLOCK";
     gateContextMenu.querySelector("#addInput").style.display = isSourceInput ? "none" : "";
     gateContextMenu.querySelector("#removeInput").style.display = isSourceInput ? "none" : "";
+
+    gateContextMenu.querySelector("#toggleMuxEnable").style.display = ["MUX", "DEMUX", "DECODER"].includes(gate.dataset.type) ? "" : "none";
+    gateContextMenu.querySelector("#toggleMuxEnable").textContent = gate.dataset.enable === "1" ? "Remove Enable" : "Add Enable";
+    gateContextMenu.querySelector("#toggleLatchEnable").style.display = (gate.dataset.type === "LATCH" && !gate.dataset.masterSlaveRole) ? "" : "none";
+    gateContextMenu.querySelector("#toggleLatchEnable").textContent = gate.dataset.enable === "1" ? "Remove Enable" : "Add Enable";
+    gateContextMenu.querySelector("#toggleFlipFlopEnable").style.display = gate.dataset.type === "FLIP_FLOP" ? "" : "none";
+    gateContextMenu.querySelector("#toggleFlipFlopEnable").textContent = gate.dataset.enable === "1" ? "Remove Enable" : "Add Enable";
+    gateContextMenu.querySelector("#toggleFlipFlopEdge").style.display = gate.dataset.type === "FLIP_FLOP" ? "" : "none";
+    gateContextMenu.querySelector("#toggleFlipFlopEdge").textContent = gate.dataset.edge === "rising" ? "Clock Edge: Rising" : "Clock Edge: Falling";
+    gateContextMenu.querySelector("#convertComponent").style.display = ["ENCODER", "DECODER", "MUX", "DEMUX"].includes(gate.dataset.type) ? "" : "none";
+    const msButton=gateContextMenu.querySelector("#convertMasterSlave");
+    msButton.style.display = gate.dataset.masterSlaveRole ? "" : "none";
+    msButton.textContent = gate.dataset.masterSlaveRole === "Slave" ? "Convert to Master" : "Convert to Slave";
 
     gateContextMenu.style.display = "block";
 

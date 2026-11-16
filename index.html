@@ -116,12 +116,50 @@
                 </section>
             </aside>
 
-            <div class="drawing-area" id="drawingArea">
-                <p>Drag and drop components here</p>
-            </div>
-
-        </div>
-
+            <div class="circuit-canvas-column">
+              <div class="drawing-area" id="drawingArea">
+                  <p>Drag and drop components here</p>
+              </div>
+              <div class="advanced-ribbon" aria-label="Advanced circuit components">
+          <div class="advanced-tabs">
+            <button type="button" class="advanced-tab" id="adderCategory" aria-expanded="false" aria-controls="adderChoices">Adders ▾</button>
+            <button type="button" class="advanced-tab" id="comparatorCategory" aria-expanded="false" aria-controls="comparatorChoices">Comparator ▾</button>
+            <button type="button" class="advanced-tab" id="encoderDecoderCategory" aria-expanded="false" aria-controls="encoderDecoderChoices">Encoder / Decoder ▾</button>
+            <button type="button" class="advanced-tab" id="muxCategory" aria-expanded="false" aria-controls="muxChoices">MUX / DEMUX ▾</button>
+            <button type="button" class="advanced-tab" id="latchesCategory" aria-expanded="false" aria-controls="latchesChoices">Latches ▾</button>
+            <button type="button" class="advanced-tab" id="flipFlopsCategory" aria-expanded="false" aria-controls="flipFlopsChoices">Flip-Flops / CLK ▾</button>
+          </div>
+          <div class="advanced-choices" id="flipFlopsChoices" hidden>
+            <button type="button" data-ff-kind="D">D Flip-Flop</button>
+            <button type="button" data-ff-kind="SR">SR Flip-Flop</button>
+            <button type="button" data-ff-kind="JK">JK Flip-Flop</button>
+            <button type="button" data-ff-kind="CLOCK">CLK</button>
+          </div>
+          <div class="advanced-choices" id="latchesChoices" hidden>
+            <button type="button" data-latch-kind="SR">SR Latch</button>
+            <button type="button" data-latch-kind="D">D Latch</button>
+            <button type="button" data-latch-kind="JK">JK Latch</button>
+          </div>
+          <div class="advanced-choices" id="muxChoices" hidden>
+            <button type="button" data-mux-size="2">MUX 2×1</button>
+            <button type="button" data-mux-size="4">MUX 4×1</button>
+          </div>
+          <div class="advanced-choices" id="encoderDecoderChoices" hidden>
+            <button type="button" data-encoder-size="4">4×2</button>
+            <button type="button" data-encoder-size="8">8×3</button>
+            <button type="button" data-encoder-size="16">16×4</button>
+          </div>
+          <div class="advanced-choices" id="comparatorChoices" hidden>
+            <button type="button" id="addComparator">1-bit Comparator</button>
+          </div>
+          <div class="advanced-choices" id="adderChoices" hidden>
+            <button type="button" id="addHalfAdder">Half Adder (HA)</button>
+            <button type="button" id="addFullAdder">Full Adder (FA)</button>
+            <button type="button" id="addParallelAdder">Parallel Adder (PA)</button>
+          </div>
+              </div><!-- advanced-ribbon -->
+            </div><!-- circuit-canvas-column -->
+        </div><!-- circuit-container -->
     </section>
 
 </main>
@@ -141,10 +179,25 @@
 <script src="js/boolean-equations.js"></script>
 <script src="js/truth-table.js"></script>
 <script src="js/timing-diagram.js"></script>
+<script src="js/karnaugh-map.js"></script>
 <script src="js/results-alignment.js"></script>
 <script src="js/credits.js"></script>
 <script src="js/open-wires.js"></script>
 <script src="js/wire-jumps.js"></script>
 <script src="js/group-actions.js"></script>
+    <script src="js/boolean-algebra.js"></script>
+    <script src="js/advanced-placement.js"></script>
+    <script src="js/half-adder.js"></script>
+    <script src="js/full-adder.js"></script>
+    <script src="js/parallel-adder.js"></script>
+    <script src="js/comparator.js"></script>
+    <script src="js/encoder-decoder.js"></script>
+    <script src="js/mux.js"></script>
+    <script src="js/latches.js"></script>
+    <script src="js/flip-flops.js"></script>
+    <script src="js/master-slave.js"></script>
+    <script src="js/advanced-dropdown-position.js"></script>
+    <script src="js/wire-net-resolver.js"></script>
+    <script src="js/wire-connection-check.js"></script>
 </body>
 </html>

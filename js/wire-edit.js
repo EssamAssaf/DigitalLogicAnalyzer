@@ -20,7 +20,7 @@ function simplifyRoute(points) {
 }
 
 function createRoutePoints(connection) {
-  const outputPin=connection.fromGate.querySelector('.output-pin');
+  const outputPin=(connection.fromGate.querySelector(`.output-pin[data-output="${connection.outputIndex || 0}"]`) || (connection.outputIndex ? null : connection.fromGate.querySelector('.output-pin')));
   const inputPin=findInputPin(connection.toGate,connection.inputIndex);
   if (!outputPin||!inputPin) return [];
   const start=getPinPosition(outputPin), end=getPinPosition(inputPin);

@@ -7,6 +7,8 @@
   window.__openEndedWiresInstalled = true;
 
   const openWires = [];
+  // Read-only snapshot for the Run-time connectivity verifier.
+  window.__dlaGetOpenWires = () => [...openWires];
   const pathToWire = new WeakMap();
   const ns = "http://www.w3.org/2000/svg";
   let lastMouse = null;
@@ -36,7 +38,7 @@
 
   function pinOf(wire) {
     if (!wire.sourceGate?.isConnected) return null;
-    if (wire.sourceKind === "output") return wire.sourceGate.querySelector(".output-pin");
+    if (wire.sourceKind === "output") return wire.sourceGate.querySelector(`.output-pin[data-output="${wire.sourceIndex || 0}"]`) || (wire.sourceIndex ? null : wire.sourceGate.querySelector(".output-pin"));
     return wire.sourceGate.querySelector(`.input-pin[data-pin="${wire.sourceIndex}"]`);
   }
 
@@ -55,11 +57,21 @@
     return existing?.line?.dataset?.wireColor || INPUT_WIRE_COLORS[key] || "#00ffff";
   }
 
-  function stableWireColor(wire) {
-    if (!wire) return null; // Important: allows fallback to parentBranch.color.
-    const stored = wire.line?.dataset?.wireColor;
-    const key = wire.sourceGate?.querySelector("svg[data-input-key]")?.dataset.inputKey;
-    return stored || wire.color || INPUT_WIRE_COLORS[key] || null;
+  function stableWireColor(wire, seen = new Set()) {
+    if (!wire || seen.has(wire)) return null;
+    seen.add(wire);
+    // Follow the parent chain: selecting or recoloring a branch cannot
+    // cause it to acquire a different signal color.
+    if (wire.parentConnection) {
+      const source = wire.parentConnection.fromGate?.querySelector('svg');
+      return source?.dataset.wireColor ||
+        wire.parentConnection.line?.dataset.wireColor || wire.color || null;
+    }
+    if (wire.parentWire) return stableWireColor(wire.parentWire, seen) || wire.color;
+    const key = wire.sourceGate?.querySelector('svg[data-input-key]')?.dataset.inputKey;
+    const source = wire.sourceGate?.querySelector('svg');
+    return source?.dataset.wireColor ||
+      wire.line?.dataset?.wireColor || wire.color || INPUT_WIRE_COLORS[key] || null;
   }
 
   function branchSignalColor(parentBranch, pin) {
@@ -107,16 +119,37 @@
       else if (firstNext.x === previousStart.x) firstNext.x = start.x;
       wire.vertices[0] = start;
     }
-    wire.line.setAttribute("d", fmt(wire.vertices));
-    wire.endDot.setAttribute("cx", wire.vertices.at(-1).x);
-    wire.endDot.setAttribute("cy", wire.vertices.at(-1).y);
+    // Avoid emitting redundant SVG mutations while a wire is open.
+    const nextPath = fmt(wire.vertices);
+    if (wire.line.getAttribute("d") !== nextPath) wire.line.setAttribute("d", nextPath);
+    const last = wire.vertices.at(-1);
+    if (wire.endDot.getAttribute("cx") !== String(last.x)) wire.endDot.setAttribute("cx", last.x);
+    if (wire.endDot.getAttribute("cy") !== String(last.y)) wire.endDot.setAttribute("cy", last.y);
     if (wire.branchDot) {
       wire.branchDot.setAttribute("cx", start.x);
       wire.branchDot.setAttribute("cy", start.y);
       wire.branchDot.style.display = "";
     }
+    const netColor = stableWireColor(wire);
+    if (netColor) {
+      wire.color = netColor;
+      wire.line.dataset.wireColor = netColor;
+      // Preserve yellow selected-wire highlight, otherwise sync stroke.
+      if (selectedOpenWire !== wire) {
+        wire.line.setAttribute('stroke', netColor);
+        wire.line.style.filter = `drop-shadow(0 0 5px ${netColor})`;
+      }
+      wire.branchDot?.setAttribute('fill', netColor);
+      wire.endDot?.setAttribute('fill', netColor);
+    }
     wire.line.style.display = "";
   }
+
+  // Called after changing the source color or creating/removing a branch.
+  // Recursively preserve source-net colors across every open-wire segment.
+  window.__dlaRefreshOpenWireColors = function () {
+    for (const wire of openWires) if (wire.line?.isConnected) refreshWire(wire);
+  };
 
   function addFreeWire(pin, end, parentBranch = null, directDiagonal = false) {
     const start = parentBranch ? parentBranch.anchor : getPinPosition(pin);
@@ -138,6 +171,7 @@
     line.dataset.wireColor = color;
     if (directDiagonal) line.dataset.diagonalWire = "true";
     const endDot = document.createElementNS(ns, "circle");
+    endDot.classList.add("wire-free-endpoint");
     endDot.setAttribute("r", "4");
     endDot.setAttribute("fill", color);
     endDot.style.pointerEvents = "none";
@@ -146,7 +180,7 @@
     const wire = {
       sourceGate: pin.closest(".logic-gate"),
       sourceKind: pin.classList.contains("output-pin") ? "output" : "input",
-      sourceIndex: Number(pin.dataset.pin || 0),
+      sourceIndex: Number(pin.classList.contains("output-pin") ? (pin.dataset.output || 0) : (pin.dataset.pin || 0)),
       vertices: points,
       line,
       endDot,
@@ -182,7 +216,7 @@
   window.commitOpenConnectionBranch = function (data) {
     const parent = data?.connection;
     if (!parent || !connections.includes(parent)) return false;
-    const pin = parent.fromGate?.querySelector('.output-pin');
+    const pin = parent.fromGate?.querySelector(`.output-pin[data-output="${parent.outputIndex || 0}"]`) || (parent.outputIndex ? null : parent.fromGate?.querySelector('.output-pin'));
     if (!pin) return false;
     const oldBends = wireBends;
     wireBends = (data.bends || []).map(clone);
@@ -605,6 +639,8 @@
           connection.startDirection = pts.length > 1 && pts[0].y === pts[1].y ? "horizontal" : "vertical";
           connection.endDirection = pts.length > 1 && pts.at(-1).y === pts.at(-2).y ? "horizontal" : "vertical";
           const dot = document.createElementNS(ns, "circle");
+          dot.classList.add("wire-confirmed-junction");
+          dot.__wireConnection = connection;
           dot.setAttribute("r", "4.5");
           dot.setAttribute("fill", pending.wire.color);
           dot.style.pointerEvents = "none";

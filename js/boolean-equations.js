@@ -44,6 +44,9 @@
       }
       .boolean-equation-empty { color: #a9bacb; text-align: center; }
       .boolean-equation-note { margin: 10px 0 0; color: #8fa9c7; font-size: 12px; }
+      .boolean-characteristic { color:#58c7ff; font-weight:700; }
+      .boolean-equation-row { text-align:center; font-size:16px; line-height:1.7; }
+      .boolean-equation-row .boolean-overline { padding-top:2px; }
     `;
     document.head.appendChild(style);
 
@@ -69,27 +72,43 @@
         for (const connection of connections) {
             if (!live.has(connection.fromGate) || !live.has(connection.toGate)) continue;
             if (!incoming.has(connection.toGate)) incoming.set(connection.toGate, new Map());
-            incoming.get(connection.toGate).set(Number(connection.inputIndex), connection.fromGate);
+            incoming.get(connection.toGate).set(Number(connection.inputIndex), {gate:connection.fromGate, pin:connection.outputIndex || 0});
         }
 
         const cache = new Map();
         const visiting = new Set();
-        function expression(gate) {
+        function expression(gate, pin = 0) {
             if (!gate) return "?";
-            if (cache.has(gate)) return cache.get(gate);
-            if (visiting.has(gate)) return "⟲"; // cyclic / feedback circuit
-            visiting.add(gate);
+            const key = `${gates.indexOf(gate)}:${pin}`;
+            if (cache.has(key)) return cache.get(key);
+            if (visiting.has(key)) return "⟲"; // cyclic / feedback circuit
+            visiting.add(key);
             const type = gate.dataset.type;
             let result;
             if (type === "INPUT") {
                 const svg = gate.querySelector("svg");
                 result = svg?.dataset.label || svg?.querySelector(".source-label")?.textContent?.trim() || "?";
             } else if (type === "OUTPUT") {
-                result = expression(incoming.get(gate)?.get(0));
+                const source = incoming.get(gate)?.get(0);
+                result = expression(source?.gate, source?.pin || 0);
             } else {
-                const count = type === "NOT" ? 1 : Math.min(8, Math.max(2, Number(gate.dataset.inputs) || 2));
-                const inputs = Array.from({ length: count }, (_, i) => expression(incoming.get(gate)?.get(i)));
-                if (type === "NOT") result = `¬${parenthesize(inputs[0])}`;
+                const count = type === "NOT" ? 1 : Math.min(16, Math.max(2, Number(gate.dataset.inputs) || 2));
+                const inputs = (type === "LATCH" || type === "FLIP_FLOP" || type === "CLOCK")
+                    ? [] : Array.from({ length: count }, (_, i) => expression(incoming.get(gate)?.get(i)?.gate, incoming.get(gate)?.get(i)?.pin || 0));
+                // Sequential outputs denote stored state; do not recursively expand
+                // memory and clock controls into unreadable ternary expressions.
+                if (type === "FLIP_FLOP") result = pin === 0 ? "Q(t+1)" : "¬(Q(t+1))";
+                else if (type === "CLOCK") result = "CLK";
+                else if (type === "LATCH") result = pin === 0 ? "Q(t+1)" : "¬(Q(t+1))";
+                else if (type === "MUX" || type === "DEMUX") result = window.muxLogic.expression(inputs, gate.dataset.muxSize, gate.dataset.enable === "1", type, pin);
+                else if (type === "ENCODER" || type === "DECODER") result = window.encoderDecoderLogic.expression(type, inputs, pin, gate.dataset.enable === "1");
+                else if (type === "HALF_ADDER") result = pin === 1 ? parenthesize(inputs.join(" · ")) : parenthesize(inputs.join(" ⊕ "));
+                else if (type === "FULL_ADDER") result = pin === 1
+                    ? `((${inputs[0]} · ${inputs[1]}) + (${inputs[2]} · (${inputs[0]} ⊕ ${inputs[1]})))`
+                    : parenthesize(inputs.join(" ⊕ "));
+                else if (type === "COMPARATOR") result = pin === 0 ? `(¬(${inputs[0]}) · ${inputs[1]})` : pin === 1 ? `¬(${inputs[0]} ⊕ ${inputs[1]})` : pin === 2 ? `(${inputs[0]} · ¬(${inputs[1]}))` : "?";
+                else if (type === "PARALLEL_ADDER") result = window.parallelAdderLogic.expression(inputs, pin);
+                else if (type === "NOT") result = `¬${parenthesize(inputs[0])}`;
                 else if (type === "AND") result = parenthesize(inputs.join(" · "));
                 else if (type === "OR") result = parenthesize(inputs.join(" + "));
                 else if (type === "NAND") result = `¬${parenthesize(inputs.join(" · "))}`;
@@ -98,8 +117,8 @@
                 else if (type === "XNOR") result = `¬${parenthesize(inputs.join(" ⊕ "))}`;
                 else result = "?";
             }
-            visiting.delete(gate);
-            cache.set(gate, result);
+            visiting.delete(key);
+            cache.set(key, result);
             return result;
         }
 
@@ -107,6 +126,29 @@
             label: output.dataset.outputLabel || output.querySelector(".output-label")?.textContent?.trim() || "Y",
             formula: expression(output)
         }));
+    }
+
+    function characteristicEquations() {
+        const sequential = Array.from(drawingArea.querySelectorAll('.logic-gate'))
+            .filter(gate => gate.dataset.type === 'LATCH' || gate.dataset.type === 'FLIP_FLOP');
+        const seen = new Set();
+        const rows = [];
+        for (const gate of sequential) {
+            const kind = gate.dataset.type === 'FLIP_FLOP' ? gate.dataset.ffKind : gate.dataset.latchKind;
+            if (!['D','SR','JK'].includes(kind) || seen.has(kind)) continue;
+            seen.add(kind);
+            const formula = kind === 'D'
+                ? 'Q(t+1) = D(t)'
+                : kind === 'SR'
+                ? 'Q(t+1) = S(t) + ¬(R(t)) · Q(t)'
+                : 'Q(t+1) = J(t) · ¬(Q(t)) + ¬(K(t)) · Q(t)';
+            rows.push({
+                label: `${kind} ${gate.dataset.type === 'FLIP_FLOP' ? 'Flip-Flop' : 'Latch'}`,
+                formula,
+                note: kind === 'SR' ? 'S=R=1: Undefined.' : ''
+            });
+        }
+        return rows;
     }
 
     // Render logical NOT as a bar ABOVE its operand, not as a side symbol.
@@ -152,24 +194,39 @@
     function render() {
         scheduled = false;
         const equations = calculateEquations();
-        const signature = JSON.stringify(equations);
+        const characteristic = characteristicEquations();
+        const signature = JSON.stringify({equations, characteristic});
         if (signature === lastSignature) return;
         lastSignature = signature;
         list.replaceChildren();
-        if (!equations.length) {
-            const empty = document.createElement("div");
-            empty.className = "boolean-equation-row boolean-equation-empty";
-            empty.textContent = "Add and connect an Output to display its Boolean equation.";
+        for (const item of characteristic) {
+            const row = document.createElement('div');
+            row.className = 'boolean-equation-row';
+            const title = document.createElement('span');
+            title.className = 'boolean-characteristic';
+            title.textContent = `${item.label}: `;
+            row.append(title, renderFormula(item.formula));
+            if (item.note) {
+                const note = document.createElement('div');
+                note.style.cssText = 'font:12px/1.5 Arial,sans-serif;color:#ffb65c;margin-top:4px';
+                note.textContent = item.note;
+                row.append(note);
+            }
+            list.appendChild(row);
+        }
+        if (!equations.length && !characteristic.length) {
+            const empty = document.createElement('div');
+            empty.className = 'boolean-equation-row boolean-equation-empty';
+            empty.textContent = 'Add and connect an Output to display its Boolean equation.';
             list.appendChild(empty);
-            return;
         }
         for (const {label, formula} of equations) {
-            const row = document.createElement("div");
-            row.className = "boolean-equation-row";
-            const name = document.createElement("span");
-            name.className = "boolean-equation-name";
+            const row = document.createElement('div');
+            row.className = 'boolean-equation-row';
+            const name = document.createElement('span');
+            name.className = 'boolean-equation-name';
             name.textContent = label;
-            row.append(name, document.createTextNode(" = "), renderFormula(formula));
+            row.append(name, document.createTextNode(' = '), renderFormula(formula));
             list.appendChild(row);
         }
     }
@@ -185,13 +242,15 @@
     const observer = new MutationObserver(records => {
         if (records.some(r => r.type === "childList" ||
             (r.type === "attributes" && (r.attributeName === "data-inputs" ||
-              r.attributeName === "data-label" || r.attributeName === "data-output-label")))) schedule();
+              r.attributeName === "data-label" || r.attributeName === "data-output-label" ||
+              r.attributeName === "data-latch-kind" || r.attributeName === "data-ff-kind" ||
+              r.attributeName === "data-master-slave-role" || r.attributeName === "data-enable")))) schedule();
     });
     observer.observe(drawingArea, {
         childList: true,
         subtree: true,
         attributes: true,
-        attributeFilter: ["data-inputs", "data-label", "data-output-label"]
+        attributeFilter: ["data-inputs", "data-label", "data-output-label", "data-latch-kind", "data-ff-kind", "data-master-slave-role", "data-enable"]
     });
     // Wire creation/deletion and in-place editing are also reflected in interactions.
     document.addEventListener("click", schedule);

@@ -115,6 +115,8 @@
         let dot = junctionDots.get(connection);
         if (!dot) {
             dot = document.createElementNS(svgNS, "circle");
+            dot.classList.add("wire-confirmed-junction");
+            dot.__wireConnection = connection;
             dot.setAttribute("r", "5");
             dot.setAttribute("fill", "#00ffff");
             dot.setAttribute("stroke", "#09182b");
@@ -486,13 +488,14 @@
         const second = routePoints[1];
         const last = routePoints[routePoints.length - 1];
         const beforeLast = routePoints[routePoints.length - 2];
-        const sourcePin = pendingBranch.parent.fromGate.querySelector(".output-pin");
+        const sourcePin = pendingBranch.parent.fromGate.querySelector(`.output-pin[data-output="${pendingBranch.parent.outputIndex || 0}"]`) || pendingBranch.parent.fromGate.querySelector(".output-pin");
         const wire = createWire(getPinPosition(sourcePin), end, []);
 
         connections.push({
             fromGate: pendingBranch.parent.fromGate,
             toGate: pin.closest(".logic-gate"),
             inputIndex,
+            outputIndex: pendingBranch.parent.outputIndex || 0,
             bends,
             routePoints,
             startDirection: first && second && first.x === second.x ? "vertical" : "horizontal",

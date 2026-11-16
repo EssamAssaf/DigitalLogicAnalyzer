@@ -121,12 +121,17 @@
     masked.clear();
     defs.replaceChildren();
     overlay.replaceChildren();
+    // New wires are appended at the end of wireLayer. Keep the noninteractive
+    // arcs ABOVE those wires, or the original segment covers the bridge.
+    if (wireLayer.lastElementChild !== overlay) wireLayer.appendChild(overlay);
     const paths = realWires();
     for (const path of paths) rememberWire(path);
     // Crucial: compare in actual first-seen creation order, NEVER the
     // current DOM order, orientation, color, or number of segments.
     paths.sort((a, b) => creationOrder.get(a) - creationOrder.get(b));
     const data = paths.map(path => ({path, segments:segments(path)}));
+    // Safety limit: a malformed/freehand preview must not lock the UI.
+    if (data.reduce((count, item) => count + item.segments.length, 0) > 400) return;
     const bridges = new Map();
     for (let i=0;i<data.length;i++) for (let j=i+1;j<data.length;j++) {
       if (data[i].path === data[j].path) continue;
@@ -150,6 +155,23 @@
         }
       }
     }
+    window.__dlaBridgeCount = [...bridges.values()].reduce((n, v) => n + v.length, 0);
+    // Some edited feedback wires use a single path which crosses itself.
+    // A crossing inside one path is not a junction unless there is a Node.
+    for (const item of data) {
+      const segs = item.segments;
+      for (let a=0; a<segs.length; a++) for (let b=a+2; b<segs.length; b++) {
+        const c=crossing(segs[a], segs[b]);
+        if (!c) continue;
+        if (!bridges.has(item.path)) bridges.set(item.path, []);
+        const list=bridges.get(item.path);
+        if (list.some(v=>Math.hypot(v.x-c.x,v.y-c.y)<1)) continue;
+        const dx=segs[b].b.x-segs[b].a.x,dy=segs[b].b.y-segs[b].a.y;
+        const len=Math.hypot(dx,dy);
+        if(len>0)list.push({...c,ux:dx/len,uy:dy/len});
+      }
+    }
+    window.__dlaBridgeCount = [...bridges.values()].reduce((n,v)=>n+v.length,0);
     if (!bridges.size) return;
     const bounds = {
       width:Math.max(drawingArea.scrollWidth,drawingArea.clientWidth)+100,
@@ -224,5 +246,7 @@
   drawingArea.addEventListener('pointermove', () => {if (typeof draggedGate !== 'undefined' && draggedGate) schedule();});
   document.addEventListener('pointerup',schedule);
   document.addEventListener('keyup',schedule);
+  document.addEventListener('logic-run-state',schedule);
+  window.addEventListener('resize',schedule);
   schedule();
 })();

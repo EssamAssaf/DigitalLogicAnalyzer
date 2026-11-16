@@ -35,6 +35,7 @@ function copySelectedCircuit() {
             from: gateIndexes.get(connection.fromGate),
             to: gateIndexes.get(connection.toGate),
             inputIndex: connection.inputIndex,
+            outputIndex: connection.outputIndex || 0,
             bends: copyCircuitPoints(connection.bends || []),
             routePoints: copyCircuitPoints(connection.routePoints),
             startDirection: connection.startDirection,
@@ -87,7 +88,7 @@ function pasteCircuitClipboard() {
     wires.forEach(saved => {
         const fromGate = newGates[saved.from];
         const toGate = newGates[saved.to];
-        const outputPin = fromGate.querySelector('.output-pin');
+        const outputPin = fromGate.querySelector(`.output-pin[data-output="${saved.outputIndex || 0}"]`) || (saved.outputIndex ? null : fromGate.querySelector('.output-pin')); 
         const inputPin = toGate.querySelector(`.input-pin[data-pin="${saved.inputIndex}"]`);
         if (!outputPin || !inputPin) return;
 
@@ -96,7 +97,7 @@ function pasteCircuitClipboard() {
             y: point.y + dy
         }));
         const line = createWire(getPinPosition(outputPin), getPinPosition(inputPin), bends);
-        const connection = { fromGate, toGate, inputIndex: saved.inputIndex, bends, line };
+        const connection = { fromGate, toGate, inputIndex: saved.inputIndex, outputIndex: saved.outputIndex || 0, bends, line };
         if (saved.routePoints) {
             connection.routePoints = saved.routePoints.map(point => ({
                 x: point.x + dx,

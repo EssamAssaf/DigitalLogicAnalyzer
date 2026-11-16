@@ -101,6 +101,20 @@ drawingArea.addEventListener("pointermove", event => {
         s.moved = true;
     }
 
+    // Reject overlapping drops, while preserving the last valid drag position.
+    // Check each selected gate against unselected gates, including advanced blocks.
+    const otherGates = Array.from(drawingArea.querySelectorAll('.logic-gate'))
+        .filter(g => !s.gates.some(moving => moving.element === g));
+    const collides = s.gates.some(moving => otherGates.some(other => {
+        const ox = parseFloat(other.style.left) || 0;
+        const oy = parseFloat(other.style.top) || 0;
+        const ow = other.offsetWidth, oh = other.offsetHeight;
+        const x = moving.x + dx, y = moving.y + dy;
+        return x < ox + ow && x + moving.width > ox &&
+               y < oy + oh && y + moving.height > oy;
+    }));
+    if (collides) return; // no movement or wire changes on invalid placement
+
     s.gates.forEach(g => {
         g.element.style.left = `${g.x + dx}px`;
         g.element.style.top = `${g.y + dy}px`;

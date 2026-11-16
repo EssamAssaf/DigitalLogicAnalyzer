@@ -54,6 +54,18 @@ function captureCircuitState() {
         type: gate.dataset.type,
 
         inputs: gate.dataset.inputs,
+        muxSize: gate.dataset.muxSize || "",
+        latchKind: gate.dataset.latchKind || "",
+        masterSlaveRole: gate.dataset.masterSlaveRole || "",
+        ffKind: gate.dataset.ffKind || "",
+        edge: gate.dataset.edge || "",
+        ffLastClock: gate.dataset.ffLastClock || "",
+        clockValue: gate.dataset.clockValue || "",
+        qvalue: gate.dataset.qvalue || "",
+        latchLastE: gate.dataset.latchLastE || "",
+        enable: gate.dataset.enable || "",
+        width: gate.style.width || "",
+        height: gate.style.height || "",
 
         rotation: gate.dataset.rotation || "0"
 
@@ -70,6 +82,7 @@ function captureCircuitState() {
         toGate: connection.toGate,
 
         inputIndex: connection.inputIndex,
+        outputIndex: connection.outputIndex || 0,
 
         bends: copyHistoryPoints(
             connection.bends || []
@@ -102,6 +115,7 @@ function getCircuitSignature(state) {
             top: gate.top,
             html: gate.html,
             inputs: gate.inputs,
+            muxSize: gate.muxSize, latchKind: gate.latchKind, masterSlaveRole: gate.masterSlaveRole, qvalue:gate.qvalue, latchLastE:gate.latchLastE, enable: gate.enable, width: gate.width, height: gate.height,
             rotation: gate.rotation
         })),
 
@@ -110,6 +124,7 @@ function getCircuitSignature(state) {
             from: getHistoryId(wire.fromGate),
             to: getHistoryId(wire.toGate),
             inputIndex: wire.inputIndex,
+            outputIndex: wire.outputIndex || 0,
             bends: wire.bends,
             routePoints: wire.routePoints,
             startDirection: wire.startDirection,
@@ -181,6 +196,18 @@ function restoreCircuitState(state) {
 
         gate.dataset.type = saved.type;
         gate.dataset.inputs = saved.inputs;
+        if (saved.muxSize) gate.dataset.muxSize = saved.muxSize; else delete gate.dataset.muxSize;
+        if (saved.latchKind) gate.dataset.latchKind = saved.latchKind; else delete gate.dataset.latchKind;
+        if (saved.masterSlaveRole) gate.dataset.masterSlaveRole = saved.masterSlaveRole; else delete gate.dataset.masterSlaveRole;
+        if (saved.ffKind) gate.dataset.ffKind = saved.ffKind; else delete gate.dataset.ffKind;
+        if (saved.edge) gate.dataset.edge = saved.edge; else delete gate.dataset.edge;
+        if (saved.ffLastClock) gate.dataset.ffLastClock = saved.ffLastClock; else delete gate.dataset.ffLastClock;
+        if (saved.clockValue) gate.dataset.clockValue = saved.clockValue; else delete gate.dataset.clockValue;
+        if (saved.qvalue) gate.dataset.qvalue = saved.qvalue; else delete gate.dataset.qvalue;
+        if (saved.latchLastE) gate.dataset.latchLastE = saved.latchLastE; else delete gate.dataset.latchLastE;
+        if (saved.enable) gate.dataset.enable = saved.enable; else delete gate.dataset.enable;
+        gate.style.width = saved.width || "";
+        gate.style.height = saved.height || "";
         gate.dataset.rotation = saved.rotation;
 
         gate.style.left = saved.left;
@@ -207,6 +234,7 @@ function restoreCircuitState(state) {
         connection.toGate = saved.toGate;
 
         connection.inputIndex = saved.inputIndex;
+        connection.outputIndex = saved.outputIndex || 0;
 
         connection.bends =
             copyHistoryPoints(saved.bends) || [];

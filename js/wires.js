@@ -211,8 +211,8 @@ function updateWires() {
 
         const outputPin =
             connection.fromGate.querySelector(
-                ".output-pin"
-            );
+                `.output-pin[data-output="${connection.outputIndex || 0}"]`
+            ) || (connection.outputIndex ? null : connection.fromGate.querySelector(".output-pin"));
 
         const inputPin = findInputPin(
             connection.toGate,
@@ -221,7 +221,7 @@ function updateWires() {
 
         if (!outputPin || !inputPin) {
 
-            connection.line.style.display = "none";
+            if (connection.line.style.display !== "none") connection.line.style.display = "none";
 
             return;
 
@@ -231,7 +231,7 @@ function updateWires() {
 
         const end = getPinPosition(inputPin);
 
-        connection.line.style.display = "";
+        if (connection.line.style.display !== "") connection.line.style.display = "";
 
         if (connection.routePoints) {
 
@@ -262,7 +262,7 @@ function updateWires() {
         `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`
     ).join(" ");
 
-    connection.line.setAttribute("d", path);
+    if (connection.line.getAttribute("d") !== path) connection.line.setAttribute("d", path);
 
 } else {
 
@@ -394,6 +394,7 @@ drawingArea.addEventListener("click", event => {
         fromGate,
         toGate,
         inputIndex,
+        outputIndex: Number(outputPin.dataset.output || 0),
         bends: startedAtInput ? [] : bends,
         line
     };
@@ -427,26 +428,36 @@ drawingArea.addEventListener("pointermove", () => {
 // OBSERVE GATE CHANGES
 // =====================================
 
-const wireObserver = new MutationObserver(() => {
-
-    updateWires();
-
+// Watch components only. Watching the SVG wire layer created a feedback loop:
+// updateWires() writes SVG paths/styles, the observer then called updateWires()
+// again indefinitely (especially while an open wire or node was present).
+let wireRefreshScheduled = false;
+const wireObserver = new MutationObserver(records => {
+    const componentChanged = records.some(record => {
+        if (record.type === "attributes") {
+            // Only geometry/position changes on an actual component. SVG wire
+            // attributes and temporary pin glow are not geometry changes.
+            return record.target.classList?.contains("logic-gate") &&
+                   record.attributeName === "style";
+        }
+        if (record.type === "childList") {
+            return [...record.addedNodes, ...record.removedNodes].some(node =>
+                node.nodeType === 1 &&
+                (node.classList?.contains("logic-gate") ||
+                 node.querySelector?.(":scope > .logic-gate"))
+            );
+        }
+        return false;
+    });
+    if (!componentChanged || wireRefreshScheduled) return;
+    wireRefreshScheduled = true;
+    requestAnimationFrame(() => {
+        wireRefreshScheduled = false;
+        updateWires();
+    });
 });
-
 wireObserver.observe(drawingArea, {
-
-    childList: true,
-
-    subtree: true,
-
-    attributes: true,
-
-    attributeFilter: [
-        "style",
-        "cx",
-        "cy"
-    ]
-
+    childList: true, subtree: true, attributes: true, attributeFilter: ["style"]
 });
 
 // =====================================

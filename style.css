@@ -493,3 +493,64 @@ header p {
     text-align: center;
     margin: 0 0 20px;
 }
+
+/* Truth Table - Compact and Centered */
+.truth-table {
+    width: max-content;
+    max-width: 100%;
+    margin: 20px auto;
+    border-collapse: collapse;
+}
+
+.truth-table th,
+.truth-table td {
+    width: 45px;
+    min-width: 45px;
+    padding: 6px 10px;
+    text-align: center;
+}
+/* Compact component selection ribbon. Does not alter the left panel or canvas. */
+.advanced-ribbon { margin-top:12px; margin-left: min(24%, 430px); position:relative; }
+.advanced-tabs { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:6px; }
+.advanced-tab, .advanced-choices button { background:#07152c; border:1px solid #00bfff; color:#e9f4ff; border-radius:7px; padding:10px 5px; cursor:pointer; font-size:12px; }
+.advanced-tab[disabled], .advanced-choices button[disabled] { opacity:.58; cursor:not-allowed; }
+.advanced-tab:not([disabled]):hover, .advanced-tab[aria-expanded=true], .advanced-choices button:not([disabled]):hover { background:#103b75; box-shadow:0 0 8px rgba(0,191,255,.5); }
+.advanced-choices { position:absolute; top:calc(100% + 5px); left:0; display:flex; flex-direction:column; width:190px; padding:6px; gap:5px; background:#061127; border:1px solid #00bfff; border-radius:7px; z-index:35; box-shadow:0 8px 18px #0009; }
+.advanced-choices[hidden] { display:none; }
+.logic-gate.advanced-gate { width:160px; height:100px; }
+/* Multi-pin codec blocks expand vertically while keeping all pins equally spaced. */
+.logic-gate.encoder-decoder-gate { box-sizing:border-box; }
+@media(max-width:900px) { .advanced-ribbon { margin-left:0; } .advanced-tabs { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+
+/* Two-bit Parallel Adder symbol sized to its five input and three output pins. */
+.logic-gate.parallel-adder-gate { width:210px; height:180px; }
+
+/* Comparator has two inputs and three fixed outputs. */
+.logic-gate.comparator-gate { width:180px; height:126px; }
+#comparatorChoices { left:calc((100% - 30px) / 6 + 6px); }
+
+/* v13: Each dropdown item matches the width of its category tab. */
+.advanced-choices {
+  box-sizing: border-box;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.advanced-choices button {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+}
+
+/* v32: Compact aligned canvas controls, no detached toolbar/unused gutter. */
+.circuit-container { align-items: stretch; }
+.circuit-canvas-column { display:flex; flex:1; flex-direction:column; min-width:0; gap:6px; }
+.circuit-canvas-column .drawing-area { flex:1 1 auto; min-height:500px; }
+.circuit-canvas-column .advanced-ribbon { flex:0 0 auto; width:100%; margin:0; box-sizing:border-box; }
+@media (max-width:750px) {
+ .circuit-container { flex-direction:column; }
+ .circuit-canvas-column { width:100%; }
+}
