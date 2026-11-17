@@ -6,7 +6,7 @@
 
   const style = document.createElement('style');
   style.textContent = `
-    #project-credits {
+    :is(#project-credits, .dla-help-credits) {
       box-sizing: border-box;
       position: relative;
       width: 100%;
@@ -23,7 +23,7 @@
       overflow-wrap: anywhere;
       box-shadow: 0 0 12px rgba(0,191,255,.3);
     }
-    #project-credits .credits-university-logo {
+    :is(#project-credits, .dla-help-credits) .credits-university-logo {
       display: block;
       width: 78px;
       max-width: 45%;
@@ -31,7 +31,7 @@
       margin: 0 auto 7px;
       object-fit: contain;
     }
-    #project-credits .credits-heading {
+    :is(#project-credits, .dla-help-credits) .credits-heading {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -40,28 +40,28 @@
       font-size: 15px;
       font-weight: 700;
     }
-    #project-credits .credits-heading::before,
-    #project-credits .credits-heading::after {
+    :is(#project-credits, .dla-help-credits) .credits-heading::before,
+    :is(#project-credits, .dla-help-credits) .credits-heading::after {
       content: '';
       display: block;
       height: 1px;
       width: min(21%, 180px);
       background: #00bfff;
     }
-    #project-credits .credits-heading span {
+    :is(#project-credits, .dla-help-credits) .credits-heading span {
       background: #123b65;
       color: #fff;
       border-radius: 14px;
       padding: 4px 18px;
       white-space: nowrap;
     }
-    #project-credits .credits-name {
+    :is(#project-credits, .dla-help-credits) .credits-name {
       font-size: clamp(17px, 2vw, 21px);
       font-weight: 700;
       margin: 3px 0;
     }
-    #project-credits .credits-line { font-size: 14px; margin: 4px 0; }
-    #project-credits .credits-degree {
+    :is(#project-credits, .dla-help-credits) .credits-line { font-size: 14px; margin: 4px 0; }
+    :is(#project-credits, .dla-help-credits) .credits-degree {
       display: inline-block;
       max-width: 100%;
       padding: 5px 12px;
@@ -71,20 +71,20 @@
       font-size: 13px;
       font-weight: 700;
     }
-    #project-credits .credits-university,
-    #project-credits .credits-supervisor {
+    :is(#project-credits, .dla-help-credits) .credits-university,
+    :is(#project-credits, .dla-help-credits) .credits-supervisor {
       font-size: 15px;
       font-weight: 700;
       margin: 5px 0 3px;
     }
-    #project-credits .credits-supervisor {
+    :is(#project-credits, .dla-help-credits) .credits-supervisor {
       display: inline-block;
       border-radius: 15px;
       padding: 5px 15px;
       color: #fff;
       background: #65126f;
     }
-    #project-credits .credits-copyright {
+    :is(#project-credits, .dla-help-credits) .credits-copyright {
       position: absolute;
       right: 16px;
       bottom: 9px;
@@ -94,19 +94,19 @@
       text-align: right;
       line-height: 1.2;
     }
-    #project-credits a { color: #58c7ff; text-decoration: underline; }
-    #project-credits a:focus-visible { outline: 3px solid #00bfff; outline-offset: 3px; }
+    :is(#project-credits, .dla-help-credits) a { color: #58c7ff; text-decoration: underline; }
+    :is(#project-credits, .dla-help-credits) a:focus-visible { outline: 3px solid #00bfff; outline-offset: 3px; }
     @media (max-width: 600px) {
-      #project-credits { padding: 12px 10px; }
-      #project-credits .credits-copyright { right: 10px; bottom: 5px; font-size: 10px; }
-      #project-credits .credits-line, #project-credits .credits-degree { font-size: 12px; }
-      #project-credits .credits-heading { font-size: 13px; gap: 6px; }
-      #project-credits .credits-heading span { padding: 4px 10px; }
+      :is(#project-credits, .dla-help-credits) { padding: 12px 10px; }
+      :is(#project-credits, .dla-help-credits) .credits-copyright { right: 10px; bottom: 5px; font-size: 10px; }
+      :is(#project-credits, .dla-help-credits) .credits-line, :is(#project-credits, .dla-help-credits) .credits-degree { font-size: 12px; }
+      :is(#project-credits, .dla-help-credits) .credits-heading { font-size: 13px; gap: 6px; }
+      :is(#project-credits, .dla-help-credits) .credits-heading span { padding: 4px 10px; }
     }
     @media print {
-      #project-credits { box-shadow: none; break-inside: avoid; page-break-inside: avoid; }
-      #project-credits .credits-heading span,
-      #project-credits .credits-supervisor { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      :is(#project-credits, .dla-help-credits) { box-shadow: none; break-inside: avoid; page-break-inside: avoid; }
+      :is(#project-credits, .dla-help-credits) .credits-heading span,
+      :is(#project-credits, .dla-help-credits) .credits-supervisor { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
   `;
   document.head.appendChild(style);

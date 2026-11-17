@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /DigitalLogicAnalyzer/
+
+Sitemap: https://essamassaf.github.io/DigitalLogicAnalyzer/sitemap.xml

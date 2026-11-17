@@ -188,34 +188,62 @@
 
     showHelp() {
       if (!this.helpDialog) {
-        const dialog=document.createElement('dialog');
-        dialog.className='dla-help-dialog';
-        dialog.innerHTML=`<h2>Digital Logic Analyzer — Help</h2>
-          <p><strong>Components:</strong> Add inputs, gates and advanced components from their panels.</p>
-          <p><strong>Wires:</strong> Click an output pin and then an input pin. Double-click a wire to branch. Use Enter to leave an open wire and Escape to cancel drawing.</p>
-          <p><strong>Editing:</strong> Select objects on the canvas, right-click for options, and use Ctrl+Z / Ctrl+Y for Undo / Redo.</p>
-          <p><strong>Files:</strong> Save downloads a <code>.dla.json</code> circuit file; Open restores one. New clears the canvas.</p>
-          <p><strong>Run:</strong> Start or stop simulation. Unknown output is displayed as a dash.</p>
-          <p><strong>Print:</strong> Click a report frame to preview and print it in black and white. <strong>Export PDF:</strong> Download all seven report frames as one black-and-white PDF.</p>
-          <form method="dialog"><button type="submit">Close</button></form>`;
+        const dialog = document.createElement('dialog');
+        dialog.className = 'dla-help-dialog';
+        dialog.setAttribute('aria-label', 'Project information');
+        dialog.innerHTML = `<div class="dla-help-header">
+            <strong>Project Information</strong>
+            <form method="dialog"><button type="submit" aria-label="Close project information">Close</button></form>
+          </div><div class="dla-help-paper"></div>`;
         document.body.appendChild(dialog);
-        this.helpDialog=dialog;
+        this.helpDialog = dialog;
       }
-      this.helpDialog.showModal();
+      // Mirror the existing credits verbatim; no separate hard-coded copy can go stale.
+      const source = document.getElementById('project-credits');
+      const paper = this.helpDialog.querySelector('.dla-help-paper');
+      paper.replaceChildren();
+      if (source) {
+        const copy = source.cloneNode(true);
+        copy.id = 'dla-help-credits';
+        copy.classList.add('dla-help-credits');
+        paper.appendChild(copy);
+      } else {
+        const message = document.createElement('p');
+        message.textContent = 'Project information is unavailable.';
+        paper.appendChild(message);
+      }
+      if (!this.helpDialog.open) this.helpDialog.showModal();
     }
 
     addPrintStyles() {
       const style=document.createElement('style');
       style.textContent=`
-        .dla-help-dialog{max-width:650px;width:min(90vw,650px);border:1px solid #00bfff;
-          border-radius:12px;background:#07152e;color:#f0f8ff;padding:24px;
-          box-shadow:0 0 25px #00bfff50;font:15px/1.5 Arial,sans-serif}
-        .dla-help-dialog::backdrop{background:#000a}
-        .dla-help-dialog h2{color:#43c8ff;margin-top:0}
-        .dla-help-dialog button{background:#124171;color:white;border:1px solid #00bfff;
-          border-radius:6px;padding:9px 24px;cursor:pointer}
-        .dla-help-dialog form{text-align:right}
-
+        .dla-help-dialog { box-sizing:border-box; width:min(94vw,880px); max-width:880px;
+          max-height:90vh; border:1px solid #00bfff; border-radius:12px;
+          background:#07152e; color:#f0f8ff; padding:12px; box-shadow:0 0 25px #00bfff50;
+          font:15px/1.5 Arial,sans-serif; }
+        .dla-help-dialog::backdrop { background:#000b; }
+        .dla-help-header { display:flex; align-items:center; justify-content:space-between;
+          gap:15px; margin-bottom:12px; padding:0 4px; }
+        .dla-help-header button { background:#124171; color:white; border:1px solid #00bfff;
+          border-radius:7px; padding:8px 20px; cursor:pointer; }
+        .dla-help-paper { background:#fff; color:#111; border-radius:10px; padding:22px 14px;
+          overflow-y:auto; max-height:calc(90vh - 95px); }
+        .dla-help-dialog #dla-help-credits { box-sizing:border-box; width:100%; margin:0;
+          padding:28px 20px 35px; color:#111; background:#fff;
+          border:1.5px solid #333; border-radius:12px; box-shadow:none; }
+        .dla-help-dialog #dla-help-credits .credits-university-logo { filter:brightness(0) !important; }
+        .dla-help-dialog #dla-help-credits .credits-heading::before,
+        .dla-help-dialog #dla-help-credits .credits-heading::after { background:#444; }
+        .dla-help-dialog #dla-help-credits .credits-heading span,
+        .dla-help-dialog #dla-help-credits .credits-supervisor { background:white; color:#111;
+          border:1px solid #444; }
+        .dla-help-dialog #dla-help-credits .credits-degree { background:white; color:#111;
+          border-color:#444; }
+        .dla-help-dialog #dla-help-credits a { color:#111; }
+        .dla-help-dialog #dla-help-credits .credits-copyright { color:#444; }
+        @media (max-width:600px) { .dla-help-paper { padding:10px 5px; }
+          .dla-help-dialog #dla-help-credits { padding:18px 9px 36px; } }
       `;
       document.head.appendChild(style);
     }

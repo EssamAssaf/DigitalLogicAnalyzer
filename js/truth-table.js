@@ -14,7 +14,7 @@
     /* Inner frame surrounds only the table area; the explanatory note stays below it. */
     .truth-table-content { flex:1 1 auto; min-height:260px; border:1px solid #174973;
       border-radius:7px; padding:8px 12px; display:flex; flex-direction:column;
-      align-items:center; justify-content:flex-start; min-width:0; box-sizing:border-box; }
+      align-items:center; justify-content:center; min-width:0; box-sizing:border-box; }
     .truth-table-scroll { width:max-content; max-width:100%; margin:0 auto; overflow-x:auto; border:1px solid #174973; border-radius:8px; }
     .truth-table { width:max-content; max-width:none; border-collapse:collapse; color:#f1f7ff; text-align:center;
       font:15px/1.5 Consolas,'Courier New',monospace; }
