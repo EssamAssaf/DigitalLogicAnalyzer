@@ -107,6 +107,31 @@
         });
     });
 
+    // Toolbar file loader: restore the actual input model, not only its labels.
+    window.__dlaGetInputStates = () => rows.map(row => {
+        const key = row.dataset.inputKey;
+        return { key, ...inputStates.get(key) };
+    });
+    window.__dlaSetInputStates = (states) => {
+        for (const saved of Array.isArray(states) ? states : []) {
+            const row = rows.find(item => item.dataset.inputKey === saved.key);
+            const state = inputStates.get(saved.key);
+            if (!row || !state) continue;
+            const label = String(saved.label || saved.key).trim();
+            if (/^[A-Za-z][A-Za-z0-9_]{0,7}$/.test(label)) state.label = label;
+            state.value = saved.value === 1 ? 1 : 0;
+            row.querySelector('.input-symbol').textContent = state.label;
+            const toggle = row.querySelector('.input-switch');
+            toggle.classList.toggle('on', Boolean(state.value));
+            toggle.setAttribute('aria-pressed', String(Boolean(state.value)));
+            toggle.querySelector('.input-value').textContent = String(state.value);
+            row.querySelector('.input-add').title = `Add input ${state.label} to canvas`;
+            row.querySelector('.input-rename').title = `Rename input ${state.label}`;
+            toggle.title = `Toggle input ${state.label}`;
+            repaintExisting(saved.key);
+        }
+    };
+
     // Repaint after undo/redo or clipboard paste, including duplicate inputs.
     // SVG carries a stable slot key even when outer gate dataset is copied selectively.
     const inputObserver = new MutationObserver(records => {

@@ -347,7 +347,7 @@ document.addEventListener("click", event => {
 
     if (
         event.target.closest(
-            "#undoBtn, #redoBtn"
+            "#undoBtn, #redoBtn, #newBtn, #openBtn, #saveBtn, #printBtn, #exportBtn, #helpBtn"
         )
     ) {
         return;

@@ -409,6 +409,22 @@
         refreshPalette();
     });
 
+    // Keep output names and the palette synchronized after opening a circuit.
+    window.__dlaGetOutputNames = () => slots.map(slot => slot.name);
+    window.__dlaSetOutputNames = (names) => {
+        if (!Array.isArray(names)) return;
+        names.forEach((name, index) => {
+            const slot = slots[index];
+            if (!slot) return;
+            const clean = safeName(String(name || ''));
+            if (!clean) return;
+            slot.name = clean;
+            const node = slotNode(slot);
+            if (node) changeNodeName(node, clean);
+        });
+        refreshPalette();
+    };
+
     // Update availability when outputs are removed, restored or loaded.
     const observer = new MutationObserver(() => refreshPalette());
     observer.observe(drawingArea, {childList:true});

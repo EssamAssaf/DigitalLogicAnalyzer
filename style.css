@@ -554,3 +554,7 @@ header p {
  .circuit-container { flex-direction:column; }
  .circuit-canvas-column { width:100%; }
 }
+
+/* v47: Match the vertical gap between the drawing frame and advanced tools
+   to the 15px breathing room below the tools inside the circuit section. */
+.circuit-canvas-column { gap: 15px; }

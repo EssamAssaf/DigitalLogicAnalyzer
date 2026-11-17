@@ -584,6 +584,53 @@
     return true;
   };
 
+  // Save/Open integration: remove all standalone and branching free wires.
+  window.__dlaClearOpenWires = () => {
+    for (const wire of [...openWires]) removeOpenWire(wire);
+    continuing = null;
+    restoreSelection();
+  };
+  window.__dlaRestoreOpenWires = (records, restoredGates, restoredConnections) => {
+    const created = [];
+    const oldBends = wireBends;
+    try {
+      for (const saved of Array.isArray(records) ? records : []) {
+        const sourceGate = restoredGates[saved.sourceGate];
+        if (!sourceGate || !Array.isArray(saved.vertices) || saved.vertices.length < 2) {
+          created.push(null); continue;
+        }
+        const pin = saved.sourceKind === 'output'
+          ? (sourceGate.querySelector(`.output-pin[data-output="${saved.sourceIndex || 0}"]`) || sourceGate.querySelector('.output-pin'))
+          : sourceGate.querySelector(`.input-pin[data-pin="${saved.sourceIndex}"]`);
+        if (!pin) { created.push(null); continue; }
+        const parentWire = Number.isInteger(saved.parentWire) ? created[saved.parentWire] : null;
+        const parentConnection = Number.isInteger(saved.parentConnection)
+          ? restoredConnections[saved.parentConnection] : null;
+        const first = saved.vertices[0];
+        const parent = (parentWire || parentConnection) ? {
+          wire: parentWire || null,
+          connection: parentConnection || null,
+          anchor: {x: first.x, y: first.y},
+          segment: saved.parentSegment || 0,
+          ratio: saved.parentRatio || 0
+        } : null;
+        wireBends = [];
+        const end = saved.vertices.at(-1);
+        const ok = addFreeWire(pin, {x:end.x,y:end.y}, parent, Boolean(saved.diagonal));
+        if (!ok) { created.push(null); continue; }
+        const wire = openWires.at(-1);
+        wire.vertices = saved.vertices.map(v => ({x:Number(v.x),y:Number(v.y)}));
+        if (typeof saved.color === 'string' && /^#[0-9a-fA-F]{6}$/.test(saved.color)) {
+          wire.color = saved.color;
+          wire.line.dataset.wireColor = saved.color;
+        }
+        refreshWire(wire);
+        created.push(wire);
+      }
+      window.__dlaRefreshOpenWireColors?.();
+    } finally {wireBends = oldBends;}
+  };
+
   // Keep finished branch-to-input connections anchored at their actual junction.
   // fromGate remains the original source for logical evaluation, while the SVG
   // route starts at the branch point (not the source component again).
